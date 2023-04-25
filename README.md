@@ -7,19 +7,20 @@
     <em>Fig: Sample Local Path Plan for lunar rover</em>
 </p>
 
-## DEM GENERATION
+## Instructions
+### DEM generation
 * Process NAC images in USGS ISIS and Ames Stereo Pipeline.
 * Generate point cloud and obtain the .las format.
 * Convert .las format into .csv using liblas library for importing to MATLAB.
 * Checkout the Pg 6-28 of the [doc](https://github.com/chandrabhraman/lunar-rover-path-planning-/blob/main/path%20planning%20summary%20final.pdf) for more details
 
-## GLOBAL PATH PLANNING USING COURSE MAP DATA GENERATED WITH DEMs.
+### Global path planning using coarse map data generated with DEMs
 * Identify the all the cost functions.
 * Plan the starting point.
 * Plan the end point.
 * Choose an algorithm for cost minimization from starting to end point and implementing.
 
-## LOCAL PATH PLANNING USING STEREO IMAGES FROM ROVER
+### Local path planning using stereo images from rover
 * Pan the area using the stereo imaging.
 * Map the ROI based on the imaging function.(cam2map)
 * Identify the obstacles in image of minimum threshold and generate a field map based on obstacles.
