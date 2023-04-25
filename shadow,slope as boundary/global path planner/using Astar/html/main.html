@@ -1,0 +1,437 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-03"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">%%variables to divide the DEM into various subsections. Picking 10000</span>
+<span class="comment">%%points at a time from the file.</span>
+R1 = 0;
+C1 = 0;
+C2 = 2;
+R2 = 9999;
+</pre><pre class="codeinput"><span class="comment">%12435501 is the number of data points avaiable in the DEM file.</span>
+<span class="keyword">while</span>(R2&lt;12435501)
+</pre><pre class="codeinput">    <span class="comment">%taking only 4 iterations for publishing the document.</span>
+    <span class="comment">%reading a 10000 values at a time and rearranging and interpolating.</span>
+    map_triplet = csvread(<span class="string">'E:\team indus\2016\dem.csv'</span>,R1,C1,[R1 C1 R2 C2]);
+    num = size(map_triplet);
+    R1 = R2;
+    R2 = R2 + num(:,1);
+    unit_block = 150; <span class="comment">%unit block in cms</span>
+</pre><pre class="codeinput">    <span class="comment">%for converting to easting, northing coordinates.</span>
+    <span class="keyword">for</span> a = 1:num(:,1)
+        map_triplet(a,1) = 360 + map_triplet(a,1);
+    <span class="keyword">end</span>
+    F = scatteredInterpolant(map_triplet(:,1), map_triplet(:,2), map_triplet(:,3));
+    max_Long = max(map_triplet(:,1));
+    min_Long = min(map_triplet(:,1));
+    max_Lat = max(map_triplet(:,2));
+    min_Lat = min(map_triplet(:,2));
+</pre><pre class="codeinput">    <span class="comment">%using the haversine function for interpolating the extracted</span>
+    <span class="comment">%information.</span>
+    x = min_Long:((max_Long-min_Long)/haversine(max_Long, min_Long, min_Lat, min_Lat)*unit_block):max_Long;
+    y = min_Lat:((max_Lat-min_Lat)/haversine(max_Long, min_Long, min_Lat, min_Lat)*unit_block):max_Lat;
+    [~, MAX_X] = size(x);
+    [~, MAX_Y] = size(y);
+    <span class="comment">%x = reshape(xq, MAX_X*MAX_Y, 1);</span>
+    <span class="comment">%y = reshape(yq, MAX_X*MAX_Y, 1);</span>
+</pre><pre class="codeinput">    <span class="comment">%creating map and putting topography values for evaluation.</span>
+    map = ones(MAX_X, MAX_Y);
+    <span class="keyword">for</span> a = 1:MAX_X
+        <span class="keyword">for</span> b = 1:MAX_Y
+            map(a,b) = F(x(1,a), y(1,b));
+            coor_map(a,1) = x(1,a);
+            coor_map(b,2) = y(1,b);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="comment">%Defining the variables for cost determination.</span>
+    phi = 45;   <span class="comment">%azimuth</span>
+    theta = 30; <span class="comment">%elevation</span>
+
+    grid <span class="string">on</span>;
+    hold <span class="string">on</span>;
+    pcolor(map')
+    colormap(gray(2000))
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <img vspace="5" hspace="5" src="main_06.png" alt=""> <img vspace="5" hspace="5" src="main_11.png" alt=""> <pre class="codeinput">    <span class="comment">%begin interactive start and target</span>
+    pause(1);
+    h=msgbox(<span class="string">'Please Select the Target using the Left Mouse button'</span>);
+    <span class="keyword">if</span> ishandle(h) == 1
+        delete(h);
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'Please Select the Target using the Left Mouse button'</span>,<span class="string">'Color'</span>,<span class="string">'black'</span>);
+    but=0;
+    <span class="keyword">while</span> (but ~= 1) <span class="comment">%Repeat until the Left button is not clicked</span>
+        [xval,yval,but]=ginput(1);
+    <span class="keyword">end</span>
+
+    <span class="comment">%getting the values from pointer.</span>
+    xval=floor(xval);
+    yval=floor(yval);
+    xTarget=xval;<span class="comment">%X Coordinate of the Target</span>
+    yTarget=yval;<span class="comment">%Y Coordinate of the Target</span>
+</pre><img vspace="5" hspace="5" src="main_02.png" alt=""> <img vspace="5" hspace="5" src="main_07.png" alt=""> <pre class="codeoutput error">Error using ginput (line 84)
+Interrupted by figure deletion
+
+Error in main (line 71)
+        [xval,yval,but]=ginput(1);
+</pre><pre class="codeinput">    <span class="comment">%not initializing map with target location cause map should be untouched.</span>
+    plot(xval,yval,<span class="string">'gd'</span>);
+    text(xval+1,yval+.5,<span class="string">'Target'</span>)
+    pause(1);
+    h=msgbox(<span class="string">'Please Select the vehicle initial position using the Left Mouse button'</span>);
+    uiwait(h,5);
+    <span class="keyword">if</span> ishandle(h) == 1
+        delete(h);
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'Please Select the Vehicle initial position '</span>,<span class="string">'Color'</span>,<span class="string">'black'</span>);
+    but=0;
+    <span class="keyword">while</span> (but ~= 1) <span class="comment">%Repeat until the Left button is not clicked</span>
+        [xval,yval,but]=ginput(1);
+        xval=floor(xval);
+        yval=floor(yval);
+    <span class="keyword">end</span>
+    xStart=xval;<span class="comment">%Starting Position</span>
+    yStart=yval;<span class="comment">%Starting Position</span>
+
+    plot(xval,yval,<span class="string">'bo'</span>);
+    text(xval+1,yval+.5,<span class="string">'starting point'</span>);
+</pre><img vspace="5" hspace="5" src="main_03.png" alt=""> <img vspace="5" hspace="5" src="main_08.png" alt=""> <pre class="codeinput">    <span class="comment">%End of vehicle-Target pickup</span>
+
+    <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+    <span class="comment">%LISTS USED FOR ALGORITHM</span>
+    <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+    RESTRICTED=[]; <span class="comment">%restricted points with more deviation than std(map).</span>
+    OPENList=[];
+    TRAVERSED=[]; <span class="comment">%for keeping track of traversed path (USED FOR PLOTTING). analogous to CLOSED[].</span>
+    OPTIMUM=[]; <span class="comment">%could be used for building hueristics. for keeping track of most optimum path</span>
+    <span class="comment">%(avoiding deadlocks).</span>
+
+    <span class="comment">%set the starting node as the first node</span>
+    Node=[xStart, yStart];
+    Prev=Node;
+    Raised = [-1,-1];
+    num_trav = 0;
+    num_opt = 0;
+    deadlock = 0;
+    Target = [xTarget, yTarget];
+</pre><pre class="codeinput">    <span class="comment">%Satisfying the least cost criteria, the ASTAR would get the Target</span>
+    <span class="comment">%node starting from the start point to the end point. While loop starts</span>
+    <span class="comment">%here</span>
+    <span class="keyword">while</span> (Node(:,1)~=Target(:,1)) || (Node(:,2)~=Target(:,2))
+        OPENList = openNodes(Node, Prev, Raised, RESTRICTED, TRAVERSED, MAX_X, MAX_Y);
+        sz = size(OPENList);
+        Prev = Node;
+        <span class="keyword">if</span> sz(:,1)~=0
+            num_opt = num_opt+1;
+            OPTIMUM(num_opt,:) = Node;
+            Node = nextPoint(OPENList, Node, Target, coor_map, phi, map);
+            OPENList=[];
+
+        <span class="comment">%condition when deadlock occurs. No points available for traversal so no points are open</span>
+        <span class="keyword">elseif</span> num_trav&gt;0 &amp;&amp; sz(:,1)==0
+
+            <span class="comment">%If an element is traversed again, it can create a deadlock</span>
+            <span class="comment">%situation as the least cost node will be traversed again.</span>
+            <span class="comment">%DELETING THE LAST ELEMENT FROM OPTIMUM BEACAUSE THAT IS A</span>
+            <span class="comment">%DEADLOCK.</span>
+            Node = OPTIMUM(num_opt,:);
+            OPTIMUM(num_opt,:) = [];
+            num_opt = num_opt - 1;
+        <span class="keyword">else</span>
+            h=msgbox(<span class="string">'Sorry, No path exists to the Target!'</span>,<span class="string">'warn'</span>);
+            uiwait(h,5);
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>
+        num_trav = num_trav +1;
+        TRAVERSED(num_trav,:) = Node;
+    <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="comment">%Code for plotting the most optimum path.</span>
+    j=size(OPTIMUM,1);
+    <span class="keyword">if</span> ( (Node(:,1) == Target(:,1)) &amp;&amp; (Node(:,2) == Target(:,2)) )
+</pre><pre class="codeinput">    <span class="comment">%code for verification of path traversed, calculating costs for</span>
+    <span class="comment">%all grids and plotting it on map.</span>
+    <span class="comment">%Plot the OPTIMUM Path!</span>
+     j=size(OPTIMUM,1);
+     p=plot(OPTIMUM(j,1),OPTIMUM(j,2),<span class="string">'bo'</span>);
+     j=j-1;
+     <span class="keyword">for</span> i=j:-1:1
+         pause(.005);
+         set(p,<span class="string">'XData'</span>,OPTIMUM(i,1),<span class="string">'YData'</span>,OPTIMUM(i,2));
+         drawnow;
+     <span class="keyword">end</span>;
+     plot(OPTIMUM(:,1),OPTIMUM(:,2));
+     hold <span class="string">on</span>;
+</pre><img vspace="5" hspace="5" src="main_04.png" alt=""> <img vspace="5" hspace="5" src="main_09.png" alt=""> <pre class="codeinput">     <span class="comment">%PLOTTING TRAVERSED PATH FOR COMPARISON.</span>
+     p=plot(TRAVERSED(j,1),TRAVERSED(j,2),<span class="string">'bo'</span>);
+     j=j-1;
+     <span class="keyword">for</span> i=j:-1:1
+         pause(.005);
+         set(p,<span class="string">'XData'</span>,TRAVERSED(i,1),<span class="string">'YData'</span>,TRAVERSED(i,2));
+         drawnow ;
+     <span class="keyword">end</span>;
+     plot(TRAVERSED(:,1),TRAVERSED(:,2));
+</pre><pre class="codeinput">     <span class="keyword">else</span>
+         pause(1);
+         h=msgbox(<span class="string">'Sorry, No path exists to the Target!'</span>,<span class="string">'warn'</span>);
+         uiwait(h,5);
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="main_05.png" alt=""> <img vspace="5" hspace="5" src="main_10.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%variables to divide the DEM into various subsections. Picking 10000
+%%points at a time from the file.
+R1 = 0;
+C1 = 0;
+C2 = 2;
+R2 = 9999;
+%%
+%12435501 is the number of data points avaiable in the DEM file.
+while(R2<12435501)
+    %%
+    %taking only 4 iterations for publishing the document.
+    %reading a 10000 values at a time and rearranging and interpolating.
+    map_triplet = csvread('E:\team indus\2016\dem.csv',R1,C1,[R1 C1 R2 C2]);
+    num = size(map_triplet);
+    R1 = R2;
+    R2 = R2 + num(:,1);
+    unit_block = 150; %unit block in cms
+    
+    %%
+    %for converting to easting, northing coordinates.
+    for a = 1:num(:,1)
+        map_triplet(a,1) = 360 + map_triplet(a,1);
+    end
+    F = scatteredInterpolant(map_triplet(:,1), map_triplet(:,2), map_triplet(:,3));
+    max_Long = max(map_triplet(:,1));
+    min_Long = min(map_triplet(:,1));
+    max_Lat = max(map_triplet(:,2));
+    min_Lat = min(map_triplet(:,2));
+    
+    %%
+    %using the haversine function for interpolating the extracted
+    %information.
+    x = min_Long:((max_Long-min_Long)/haversine(max_Long, min_Long, min_Lat, min_Lat)*unit_block):max_Long;
+    y = min_Lat:((max_Lat-min_Lat)/haversine(max_Long, min_Long, min_Lat, min_Lat)*unit_block):max_Lat;
+    [~, MAX_X] = size(x);
+    [~, MAX_Y] = size(y);
+    %x = reshape(xq, MAX_X*MAX_Y, 1);
+    %y = reshape(yq, MAX_X*MAX_Y, 1);
+
+    %%
+    %creating map and putting topography values for evaluation.
+    map = ones(MAX_X, MAX_Y);
+    for a = 1:MAX_X
+        for b = 1:MAX_Y
+            map(a,b) = F(x(1,a), y(1,b));
+            coor_map(a,1) = x(1,a);
+            coor_map(b,2) = y(1,b);
+        end
+    end
+    
+    %%
+    %Defining the variables for cost determination.
+    phi = 45;   %azimuth
+    theta = 30; %elevation
+    
+    grid on;
+    hold on;
+    pcolor(map')
+    colormap(gray(2000))
+
+    %%
+    %begin interactive start and target
+    pause(1);
+    h=msgbox('Please Select the Target using the Left Mouse button');
+    if ishandle(h) == 1
+        delete(h);
+    end
+    xlabel('Please Select the Target using the Left Mouse button','Color','black');
+    but=0;
+    while (but ~= 1) %Repeat until the Left button is not clicked
+        [xval,yval,but]=ginput(1);
+    end
+    
+    %getting the values from pointer.
+    xval=floor(xval);
+    yval=floor(yval);
+    xTarget=xval;%X Coordinate of the Target
+    yTarget=yval;%Y Coordinate of the Target
+
+    %%
+    %not initializing map with target location cause map should be untouched.
+    plot(xval,yval,'gd');
+    text(xval+1,yval+.5,'Target')
+    pause(1);
+    h=msgbox('Please Select the vehicle initial position using the Left Mouse button');
+    uiwait(h,5);
+    if ishandle(h) == 1
+        delete(h);
+    end
+    xlabel('Please Select the Vehicle initial position ','Color','black');
+    but=0;
+    while (but ~= 1) %Repeat until the Left button is not clicked
+        [xval,yval,but]=ginput(1);
+        xval=floor(xval);
+        yval=floor(yval);
+    end
+    xStart=xval;%Starting Position
+    yStart=yval;%Starting Position
+
+    plot(xval,yval,'bo');
+    text(xval+1,yval+.5,'starting point');
+    
+    %%
+    %End of vehicle-Target pickup
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %LISTS USED FOR ALGORITHM
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    RESTRICTED=[]; %restricted points with more deviation than std(map).
+    OPENList=[];
+    TRAVERSED=[]; %for keeping track of traversed path (USED FOR PLOTTING). analogous to CLOSED[].
+    OPTIMUM=[]; %could be used for building hueristics. for keeping track of most optimum path
+    %(avoiding deadlocks).
+
+    %set the starting node as the first node
+    Node=[xStart, yStart];
+    Prev=Node;
+    Raised = [-1,-1];
+    num_trav = 0;
+    num_opt = 0;
+    deadlock = 0;
+    Target = [xTarget, yTarget];
+
+    %%
+    %Satisfying the least cost criteria, the ASTAR would get the Target
+    %node starting from the start point to the end point. While loop starts
+    %here
+    while (Node(:,1)~=Target(:,1)) || (Node(:,2)~=Target(:,2))
+        OPENList = openNodes(Node, Prev, Raised, RESTRICTED, TRAVERSED, MAX_X, MAX_Y);
+        sz = size(OPENList);
+        Prev = Node;
+        if sz(:,1)~=0
+            num_opt = num_opt+1;
+            OPTIMUM(num_opt,:) = Node;
+            Node = nextPoint(OPENList, Node, Target, coor_map, phi, map);
+            OPENList=[];
+            
+        %condition when deadlock occurs. No points available for traversal so no points are open
+        elseif num_trav>0 && sz(:,1)==0
+            
+            %If an element is traversed again, it can create a deadlock
+            %situation as the least cost node will be traversed again.
+            %DELETING THE LAST ELEMENT FROM OPTIMUM BEACAUSE THAT IS A
+            %DEADLOCK.
+            Node = OPTIMUM(num_opt,:);
+            OPTIMUM(num_opt,:) = [];
+            num_opt = num_opt - 1;
+        else
+            h=msgbox('Sorry, No path exists to the Target!','warn');
+            uiwait(h,5);
+            break;
+        end
+        num_trav = num_trav +1;
+        TRAVERSED(num_trav,:) = Node;
+    end
+    
+    %%
+    %Code for plotting the most optimum path.
+    j=size(OPTIMUM,1);
+    if ( (Node(:,1) == Target(:,1)) && (Node(:,2) == Target(:,2)) )
+    %code for verification of path traversed, calculating costs for
+    %all grids and plotting it on map.
+    %Plot the OPTIMUM Path!
+     j=size(OPTIMUM,1);
+     p=plot(OPTIMUM(j,1),OPTIMUM(j,2),'bo');
+     j=j-1;
+     for i=j:-1:1
+         pause(.005);
+         set(p,'XData',OPTIMUM(i,1),'YData',OPTIMUM(i,2));
+         drawnow;
+     end;
+     plot(OPTIMUM(:,1),OPTIMUM(:,2));
+     hold on;
+    
+     %%
+     %PLOTTING TRAVERSED PATH FOR COMPARISON.
+     p=plot(TRAVERSED(j,1),TRAVERSED(j,2),'bo');
+     j=j-1;
+     for i=j:-1:1
+         pause(.005);
+         set(p,'XData',TRAVERSED(i,1),'YData',TRAVERSED(i,2));
+         drawnow ;
+     end;
+     plot(TRAVERSED(:,1),TRAVERSED(:,2));
+     else
+         pause(1);
+         h=msgbox('Sorry, No path exists to the Target!','warn');
+         uiwait(h,5);
+    end
+end
+##### SOURCE END #####
+--></body></html>
