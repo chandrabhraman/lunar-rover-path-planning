@@ -7,6 +7,8 @@
     <em>Fig: Sample Local Path Plan for lunar rover</em>
 </p>
 
+Find in [![View lunar-rover-path-planning on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://in.mathworks.com/matlabcentral/fileexchange/128759-lunar-rover-path-planning)
+
 ## Instructions
 ### DEM generation
 * Process NAC images in USGS ISIS and Ames Stereo Pipeline.
